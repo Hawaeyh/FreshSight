@@ -1,0 +1,15 @@
+{
+  "purpose": "Controlled segmentation development only; scenarios require visual confirmation during review.",
+  "samples": [
+    {"path": "dataset/fresh/IMG_20240203_182612.jpg", "expected_class": "Fresh", "scenario": "simple-background candidate"},
+    {"path": "dataset/fresh/Mature_097.jpg", "expected_class": "Fresh", "scenario": "simple-background candidate"},
+    {"path": "dataset/fresh/IMG_20241204_094419.jpg", "expected_class": "Fresh", "scenario": "leafy-background candidate"},
+    {"path": "dataset/fresh/IMG_20240810_132955.jpg", "expected_class": "Fresh", "scenario": "leafy-background candidate"},
+    {"path": "dataset/unripe/aug_0_a_frame_59_jpg.rf.9597338e9e9b140d3b93b21b58b3939f.jpg", "expected_class": "Unripe", "scenario": "representative unripe"},
+    {"path": "dataset/unripe/IMG_20240730_144241.jpg", "expected_class": "Unripe", "scenario": "shadow candidate"},
+    {"path": "dataset/unripe/IMG_20240810_130850.jpg", "expected_class": "Unripe", "scenario": "multiple-fruit or obstruction candidate"},
+    {"path": "dataset/rotten/IMG_20241204_123039.jpg", "expected_class": "Rotten", "scenario": "representative rotten"},
+    {"path": "dataset/rotten/IMG_20241204_121817.jpg", "expected_class": "Rotten", "scenario": "representative rotten"},
+    {"path": "dataset/rotten/2_jpg.rf.dac53136c65c858f182a52d05e55a604.jpg", "expected_class": "Rotten", "scenario": "complex-background candidate"}
+  ]
+}

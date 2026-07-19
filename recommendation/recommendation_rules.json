@@ -1,0 +1,42 @@
+{
+  "Fresh": {
+    "base": [
+      "Wash the papaya before cutting or eating.",
+      "Store it in a cool, dry location.",
+      "Refrigerate after cutting.",
+      "Continue to monitor for visible spoilage."
+    ]
+  },
+  "Unripe": {
+    "base": [
+      "Allow the papaya to ripen at room temperature.",
+      "Keep it away from direct sunlight.",
+      "Reassess its colour and firmness after one to three days.",
+      "Avoid refrigeration before ripening unless necessary."
+    ]
+  },
+  "Rotten": {
+    "base": [
+      "Do not consume the papaya.",
+      "Separate it from healthy fruit.",
+      "Do not attempt to salvage visibly spoiled portions.",
+      "Dispose of the fruit responsibly."
+    ]
+  },
+  "LowConfidence": [
+    "Retake the image under better lighting.",
+    "Capture the whole papaya clearly.",
+    "Avoid obstructed or blurred images.",
+    "Request manual verification."
+  ],
+  "UnreliableSegmentation": [
+    "Treat the AI result as a precautionary screening indication.",
+    "Capture the whole fruit against a simple background with even lighting.",
+    "Request manual verification before relying on MATLAB measurements."
+  ],
+  "ReliableDisagreement": [
+    "Inspect the highlighted MATLAB evidence.",
+    "Retake the image under better lighting.",
+    "Request manual verification before making a handling decision."
+  ]
+}

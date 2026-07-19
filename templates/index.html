@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshSight V2 Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-900">
+    <nav class="bg-gradient-to-r from-emerald-600 to-teal-500 text-white shadow-xl">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">FreshSight V2 Dashboard</h1>
+                <p class="mt-1 text-sm text-emerald-50">Papaya Quality Analysis powered by MATLAB</p>
+            </div>
+            <div class="rounded-full border border-white/30 bg-white/15 px-4 py-2 text-sm font-semibold shadow-lg backdrop-blur">
+                MATLAB Backend
+            </div>
+        </div>
+    </nav>
+
+    <main class="mx-auto grid max-w-7xl gap-8 px-6 py-8 lg:grid-cols-[390px_minmax(0,1fr)]">
+        <section class="rounded-2xl border border-white/70 bg-white/90 p-6 shadow-xl backdrop-blur">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold tracking-tight">Image Upload</h2>
+                <p class="mt-1 text-sm text-slate-500">Submit a papaya image for MATLAB-based quality analysis.</p>
+            </div>
+
+            <form id="uploadForm" class="space-y-5">
+                <label for="imageInput" id="dropZone" class="flex min-h-80 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-b from-slate-50 to-white px-5 py-6 text-center shadow-inner transition-all duration-300 hover:scale-[1.01] hover:border-emerald-500 hover:bg-emerald-50">
+                    <img id="uploadPreview" class="mb-4 hidden max-h-52 w-full rounded-xl border border-slate-200 bg-white object-contain shadow-lg" alt="Selected image preview">
+                    <div id="uploadPrompt" class="flex flex-col items-center">
+                        <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 shadow-lg">
+                            <svg class="h-8 w-8 text-emerald-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5h10.5A3.75 3.75 0 0 0 21 15.75v-7.5A3.75 3.75 0 0 0 17.25 4.5H6.75A3.75 3.75 0 0 0 3 8.25v7.5A3.75 3.75 0 0 0 6.75 19.5Z" />
+                            </svg>
+                        </div>
+                        <span class="text-base font-semibold text-slate-800">Drop image here or click to upload</span>
+                        <span class="mt-2 text-sm text-slate-500">JPG, PNG, BMP, or TIFF up to 16 MB</span>
+                    </div>
+                    <span id="fileName" class="mt-4 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">No file selected</span>
+                    <input id="imageInput" name="image" type="file" accept="image/*" class="sr-only" required>
+                </label>
+
+                <button id="submitButton" type="submit" class="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-emerald-700 hover:shadow-xl disabled:cursor-not-allowed disabled:bg-slate-400 disabled:hover:scale-100">
+                    Analyze Image
+                </button>
+            </form>
+        </section>
+
+        <aside class="rounded-2xl border border-white/70 bg-white/95 p-6 shadow-xl backdrop-blur">
+            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
+                    <h2 class="text-xl font-bold tracking-tight">Analysis Results</h2>
+                    <p class="mt-1 text-sm text-slate-500">Live output from the MATLAB engine.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button id="downloadReportButton" type="button" class="rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-bold text-emerald-700 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-500 hover:bg-emerald-50 hover:shadow-xl disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400 disabled:hover:scale-100" disabled>
+                        Download Report
+                    </button>
+                    <span id="statusBadge" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-slate-600">Ready</span>
+                </div>
+            </div>
+
+            <div id="loadingState" class="hidden rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800 shadow-lg">
+                MATLAB is processing the image...
+            </div>
+
+            <div id="errorState" class="hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-lg"></div>
+
+            <div class="mt-5 grid gap-4">
+                <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+                    <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Status</p>
+                    <p id="resultStatus" class="mt-2 text-3xl font-bold text-slate-900">--</p>
+                </div>
+                <div class="grid gap-4 md:grid-cols-4">
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Grade</p>
+                        <p id="resultGrade" class="mt-2 text-2xl font-bold text-slate-900">--</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Freshness Score</p>
+                        <p id="resultFreshness" class="mt-2 text-2xl font-bold text-emerald-700">--</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Damage Area</p>
+                        <p id="resultDamage" class="mt-2 text-2xl font-bold text-red-600">--</p>
+                    </div>
+                    <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+                        <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Healthy Area</p>
+                        <p id="resultHealthy" class="mt-2 text-2xl font-bold text-emerald-700">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <section class="mt-8 border-t border-slate-200 pt-6">
+                <div class="mb-5">
+                    <h3 class="text-lg font-bold text-slate-900">Visual Analysis</h3>
+                    <p class="mt-1 text-sm text-slate-500">Processed outputs returned directly from MATLAB.</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageOriginal" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Original Image">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Original Image</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imagePapayaMask" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Papaya Mask">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Papaya Mask</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageGreenArea" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Green Area">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Green Area</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageYellowArea" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Yellow Area">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Yellow Area</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageBrownArea" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Brown Area">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Brown Area</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageWhiteMold" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="White Mold">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">White Mold</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageDarkArea" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Dark Area">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Dark Area</figcaption>
+                    </figure>
+                    <figure class="group rounded-2xl border border-slate-200 bg-white p-3 shadow-lg transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl">
+                        <img id="imageDamageHighlight" class="aspect-square w-full rounded-xl border border-slate-100 bg-slate-50 object-contain" alt="Damage Highlight">
+                        <figcaption class="mt-3 text-center text-xs font-bold uppercase tracking-wide text-slate-600 group-hover:text-emerald-700">Damage Highlight</figcaption>
+                    </figure>
+                </div>
+            </section>
+        </aside>
+    </main>
+
+    <script>
+        const form = document.getElementById("uploadForm");
+        const imageInput = document.getElementById("imageInput");
+        const uploadPreview = document.getElementById("uploadPreview");
+        const uploadPrompt = document.getElementById("uploadPrompt");
+        const fileName = document.getElementById("fileName");
+        const submitButton = document.getElementById("submitButton");
+        const downloadReportButton = document.getElementById("downloadReportButton");
+        const dropZone = document.getElementById("dropZone");
+        const loadingState = document.getElementById("loadingState");
+        const errorState = document.getElementById("errorState");
+        const statusBadge = document.getElementById("statusBadge");
+
+        const fields = {
+            status: document.getElementById("resultStatus"),
+            grade: document.getElementById("resultGrade"),
+            freshness: document.getElementById("resultFreshness"),
+            damage: document.getElementById("resultDamage"),
+            healthy: document.getElementById("resultHealthy")
+        };
+
+        const visualImages = {
+            original: document.getElementById("imageOriginal"),
+            papayaMask: document.getElementById("imagePapayaMask"),
+            greenArea: document.getElementById("imageGreenArea"),
+            yellowArea: document.getElementById("imageYellowArea"),
+            brownArea: document.getElementById("imageBrownArea"),
+            whiteMold: document.getElementById("imageWhiteMold"),
+            darkArea: document.getElementById("imageDarkArea"),
+            damageHighlight: document.getElementById("imageDamageHighlight")
+        };
+
+        let latestAnalysis = null;
+
+        function formatPercent(value) {
+            const number = Number(value);
+            return Number.isFinite(number) ? `${number.toFixed(2)}%` : "--";
+        }
+
+        function setLoading(isLoading) {
+            submitButton.disabled = isLoading;
+            submitButton.textContent = isLoading ? "Processing in MATLAB..." : "Analyze Image";
+            loadingState.classList.toggle("hidden", !isLoading);
+            if (isLoading) {
+                statusBadge.textContent = "Processing";
+                statusBadge.className = "rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-700";
+            }
+        }
+
+        function showError(message) {
+            errorState.textContent = message;
+            errorState.classList.remove("hidden");
+            statusBadge.textContent = "Error";
+            statusBadge.className = "rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-700";
+        }
+
+        function setImageFromBase64(imgElement, base64Value) {
+            imgElement.src = base64Value ? `data:image/png;base64,${base64Value}` : "";
+        }
+
+        function clearVisualImages() {
+            Object.values(visualImages).forEach((imgElement) => {
+                imgElement.removeAttribute("src");
+            });
+        }
+
+        function previewSelectedImage(file) {
+            if (!file) {
+                uploadPreview.classList.add("hidden");
+                uploadPrompt.classList.remove("hidden");
+                fileName.textContent = "No file selected";
+                return;
+            }
+
+            fileName.textContent = file.name;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                uploadPreview.src = event.target.result;
+                uploadPreview.classList.remove("hidden");
+                uploadPrompt.classList.add("hidden");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function downloadReport() {
+            if (!latestAnalysis) {
+                showError("Run an analysis before downloading a report.");
+                return;
+            }
+
+            const report = [
+                "FreshSight V2 Papaya Quality Analysis Report",
+                "================================================",
+                `Generated: ${new Date().toLocaleString()}`,
+                `Image File: ${latestAnalysis.fileName || "N/A"}`,
+                "",
+                `Status: ${latestAnalysis.status}`,
+                `Grade: ${latestAnalysis.grade}`,
+                `Freshness Score: ${latestAnalysis.freshness}`,
+                `Damage Area: ${latestAnalysis.damage}`,
+                `Healthy Area: ${latestAnalysis.healthy}`
+            ].join("\n");
+
+            const blob = new Blob([report], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `freshsight-report-${Date.now()}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        imageInput.addEventListener("change", () => {
+            previewSelectedImage(imageInput.files[0]);
+        });
+
+        downloadReportButton.addEventListener("click", downloadReport);
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.add("scale-[1.01]", "border-emerald-500", "bg-emerald-50");
+            });
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                dropZone.classList.remove("scale-[1.01]", "border-emerald-500", "bg-emerald-50");
+            });
+        });
+
+        dropZone.addEventListener("drop", (event) => {
+            const droppedFile = event.dataTransfer.files[0];
+            if (!droppedFile) {
+                return;
+            }
+
+            const transfer = new DataTransfer();
+            transfer.items.add(droppedFile);
+            imageInput.files = transfer.files;
+            previewSelectedImage(droppedFile);
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            errorState.classList.add("hidden");
+
+            if (!imageInput.files.length) {
+                showError("Please choose an image before analysis.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("image", imageInput.files[0]);
+
+            latestAnalysis = null;
+            downloadReportButton.disabled = true;
+            clearVisualImages();
+            setLoading(true);
+
+            try {
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || "Analysis failed.");
+                }
+
+                fields.status.textContent = data.Status || "--";
+                fields.grade.textContent = data.Grade || "--";
+                fields.freshness.textContent = formatPercent(data.FreshnessScore);
+                fields.damage.textContent = formatPercent(data.DamagePercentage);
+                fields.healthy.textContent = formatPercent(data.HealthyPercentage);
+
+                latestAnalysis = {
+                    fileName: imageInput.files[0].name,
+                    status: fields.status.textContent,
+                    grade: fields.grade.textContent,
+                    freshness: fields.freshness.textContent,
+                    damage: fields.damage.textContent,
+                    healthy: fields.healthy.textContent
+                };
+                downloadReportButton.disabled = false;
+
+                const images = data.images || {};
+                setImageFromBase64(visualImages.original, images.original);
+                setImageFromBase64(visualImages.papayaMask, images.papayaMask);
+                setImageFromBase64(visualImages.greenArea, images.greenArea);
+                setImageFromBase64(visualImages.yellowArea, images.yellowArea);
+                setImageFromBase64(visualImages.brownArea, images.brownArea);
+                setImageFromBase64(visualImages.whiteMold, images.whiteMold);
+                setImageFromBase64(visualImages.darkArea, images.darkArea);
+                setImageFromBase64(visualImages.damageHighlight, images.damageHighlight);
+
+                statusBadge.textContent = "Complete";
+                statusBadge.className = "rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700";
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>

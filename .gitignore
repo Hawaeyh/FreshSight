@@ -1,0 +1,27 @@
+# Virtual environment
+.venv/
+
+# Dataset
+dataset/
+dataset_duplicates_backup/
+
+# Trained models
+ai/checkpoints/
+*.pth
+*.pt
+
+# Generated outputs
+outputs/
+evaluation/outputs/
+uploads/
+results/
+
+# Database
+data/*.db
+
+# Python cache
+__pycache__/
+*.pyc
+
+# MATLAB
+*.asv

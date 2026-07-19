@@ -1,0 +1,11 @@
+{
+  "web_inference": {
+    "device": "auto",
+    "allow_cpu_fallback": true
+  },
+  "confidence": {
+    "high_threshold": 0.85,
+    "moderate_threshold": 0.65,
+    "close_probability_margin": 0.10
+  }
+}

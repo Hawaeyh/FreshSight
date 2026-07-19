@@ -1,0 +1,22 @@
+{
+  "active_model": {
+    "model_name": "FreshSight MobileNetV2",
+    "model_version": "mobilenetv2-cleaned-baseline-v1",
+    "architecture": "MobileNetV2",
+    "checkpoint_path": "ai/checkpoints/mobilenetv2_cleaned_baseline/best_model.pth",
+    "class_order": ["Fresh", "Unripe", "Rotten"],
+    "training_dataset_version": "cleaned-duplicate-free-976-seed42",
+    "best_epoch": 19,
+    "validation_accuracy": 0.9794520547945206,
+    "held_out_test_accuracy": 0.9659863945578231,
+    "macro_f1_score": 0.9652653548002386,
+    "weighted_f1_score": 0.9661719786304502,
+    "per_class_metrics": {
+      "Fresh": {"precision": 0.9318181818181818, "recall": 0.9761904761904762, "f1_score": 0.9534883720930233, "support": 42},
+      "Unripe": {"precision": 1.0, "recall": 0.9622641509433962, "f1_score": 0.9807692307692307, "support": 53},
+      "Rotten": {"precision": 0.9615384615384616, "recall": 0.9615384615384616, "f1_score": 0.9615384615384616, "support": 52}
+    },
+    "evaluation_date": "2026-07-19",
+    "active": true
+  }
+}
